@@ -16,8 +16,9 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants import (
-    PASSWORD_IS_TO_SHORT,
+    PASSWORD_MIN_LENGTH,
     PASSWORD_WITHOUT_EMAIL,
+    TOKEN_LIFETIME,
     USER_CREATED,
 )
 from app.core.config import settings
@@ -36,7 +37,7 @@ bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=settings.secret, lifetime_seconds=3600)
+    return JWTStrategy(secret=settings.secret, lifetime_seconds=TOKEN_LIFETIME)
 
 
 auth_backend = AuthenticationBackend(
@@ -52,17 +53,12 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         password: str,
         user: UserCreate | User,
     ) -> None:
-        if len(password) < 3:
-            error = PASSWORD_IS_TO_SHORT
+        if len(password) < PASSWORD_MIN_LENGTH:
+            error = f"Пароль должен содержать не менее {PASSWORD_MIN_LENGTH} символов"
             raise InvalidPasswordException(reason=error)
         if user.email in password:
             error = PASSWORD_WITHOUT_EMAIL
             raise InvalidPasswordException(reason=error)
-
-    async def on_after_register(
-        self, user: User, request: Request | None = None
-    ):
-        print(USER_CREATED.format(email=user.email))
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):
