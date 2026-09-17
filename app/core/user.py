@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, Request
+from fastapi import Depends
 from fastapi_users import (
     BaseUserManager,
     FastAPIUsers,
@@ -16,10 +16,10 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants import (
+    PASSWORD_MIN_LEGTH_ERROR,
     PASSWORD_MIN_LENGTH,
     PASSWORD_WITHOUT_EMAIL,
     TOKEN_LIFETIME,
-    USER_CREATED,
 )
 from app.core.config import settings
 from app.core.db import get_async_session
@@ -54,7 +54,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         user: UserCreate | User,
     ) -> None:
         if len(password) < PASSWORD_MIN_LENGTH:
-            error = f"Пароль должен содержать не менее {PASSWORD_MIN_LENGTH} символов"
+            error = PASSWORD_MIN_LEGTH_ERROR
             raise InvalidPasswordException(reason=error)
         if user.email in password:
             error = PASSWORD_WITHOUT_EMAIL

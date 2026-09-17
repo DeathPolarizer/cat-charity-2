@@ -4,6 +4,9 @@ NAME_LENGTH_DB = 100
 # User creation
 TOKEN_LIFETIME = 3600
 PASSWORD_MIN_LENGTH = 3
+PASSWORD_MIN_LEGTH_ERROR = (
+    f"Пароль должен содержать не менее {PASSWORD_MIN_LENGTH} символов"
+)
 PASSWORD_WITHOUT_EMAIL = "Пароль не может содержать ваш email"
 USER_CREATED = "Пользователь {email} зарегистрирован."
 
